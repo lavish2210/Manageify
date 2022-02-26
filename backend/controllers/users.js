@@ -1,6 +1,4 @@
 const { validationResult } = require("express-validator");
-const { randomBytes } = require("crypto");
-const { promisify } = require("util");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
