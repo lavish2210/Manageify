@@ -73,6 +73,9 @@ app.use(
         fileFilter: fileFilter,
     }).single("image")
 );
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/pages", pagesRoutes);
+app.use("/users", usersRoutes);
 
 // Error Handling
 app.use((err, req, res, next) => {
