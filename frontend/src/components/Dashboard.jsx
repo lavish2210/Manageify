@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "./dashboard.css";
+
 class Dashboard extends React.Component {
   componentDidMount() {
     const modle = document.querySelector('.modle');
@@ -63,7 +65,7 @@ class Dashboard extends React.Component {
             Create TimeTable
           </button>
           <button className="btn btn-primary btn-large btn-block button-properties">
-            Create Notes
+            <Link to="/notes" style={{color:"white"}}>Create Notes</Link>
           </button>
         </div>
 
@@ -77,11 +79,9 @@ class Dashboard extends React.Component {
             hv r kuvs vewvvhiwrnviwr vir viubrv nrkvhew wvnwrjvnoiwrv
           </p>
         </div>
-
         <div className="overlay hidden"></div>
       </div>
     )
-
   };
 }
 
