@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from calendarAPI import *
+import sys
 
 # ------------- BASIC SETUP --------------
 load_dotenv()
@@ -15,7 +16,7 @@ payload = {
     "password": f"{PASSWORD}"
 }
 session_requests = requests.session()
-calendar = accessCalendar()
+calendar = accessCalendar(8000)
 
 # https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time=1643653800
 calendar_prefix = "https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time="
@@ -76,17 +77,20 @@ def get_month_events(url):
     except:
         print("HIT YOUR HEAD TO WALL")
 
+# getUpcomingEvents(calendar, 10)
 
-print("JULY EVENTS")
-july_calendar_url = calendar_prefix + "1625077800"
-events = get_month_events(july_calendar_url)
-for event in events:
-    print(event, end=' -> ')
-    print(events[event])
-    print()
-
-getUpcomingEvents(calendar, 10)
-addEvent(calendar, events[event][1])
+if len(sys.argv) > 1:
+    description = sys.argv[1]
+    startTime = sys.argv[2]
+    endTime = sys.argv[3]
+    print(description, startTime, endTime)
+    startTime = "2021-07-05T00:00:00+05:30"
+    endTime = "2021-07-05T00:10:00+05:30"
+    addEvent(calendar, description, startTime, endTime)
+# july_calendar_url = calendar_prefix + "1625077800"
+# data = get_month_events(july_calendar_url)
+# for date in data:
+#     addAllEvents(calendar, data[date])
 
 # print("OCTOBER EVENTS")
 # october_calendar_url = calendar_prefix + "1633026600"

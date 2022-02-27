@@ -46,8 +46,8 @@ def getUpcomingEvents(calendar, maxEvents):
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
     print('Getting the upcoming 10 events')
     events_result = calendar.events().list(calendarId='primary', timeMin=now,
-                                           maxResults=maxEvents, singleEvents=True,
-                                           orderBy='startTime').execute()
+                                            maxResults=maxEvents, singleEvents=True,
+                                            orderBy='startTime').execute()
     events = events_result.get('items', [])
 
     if not events:

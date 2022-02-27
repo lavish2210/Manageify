@@ -62,7 +62,7 @@ class Dashboard extends React.Component {
         </div>
         <div className="buttonalignment">
           <button className="btn btn-primary btn-large btn-block button-properties">
-            Create TimeTable
+          <Link to="/events" style={{color:"white"}}>Create TimeTable</Link>
           </button>
           <button className="btn btn-primary btn-large btn-block button-properties">
             <Link to="/notes" style={{color:"white"}}>Create Notes</Link>

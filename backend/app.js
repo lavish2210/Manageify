@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const dotenv = require("dotenv");
 dotenv.config();
-
+const { spawn } = require('child_process');
 const pagesRoutes = require("./routes/pages");
 const usersRoutes = require("./routes/users");
 
@@ -65,7 +65,24 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
-
+app.get("/update",(req,res)=>{
+    var dataToSend;
+    console.log("h")
+    // spawn new child process to call the python script
+    const python = spawn('python3', ['EventsAdder.py','Hello Buddy', '','python']);
+    // // collect data from script
+    // console.log(python)
+    python.stdout.on('data', function (data) {
+        console.log('Pipe data from python script ...');
+        dataToSend = data.toString();
+        console.log(dataToSend);
+    });
+    // // in close event we are sure that stream from child process is closed
+    python.on('close', (code) => {
+        console.log(`child process close all stdio with code ${code}`);
+    })
+    res.send(dataToSend);
+})
 app.use(
     multer({
         storage: fileStorage,
