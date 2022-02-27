@@ -65,10 +65,10 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
-app.get("/update",(req,res)=>{
+app.post("/update",(req,res)=>{
     var dataToSend;
     // spawn new child process to call the python script
-    const python = spawn('python3', ['EventsAdder.py','Hello Buddy', '','python']);
+    const python = spawn('python', ['EventsAdder.py',req.body.p1, req.body.p2,req.body.p3]);
     python.stdout.on('data', function (data) {
         // collect data from script
         console.log('Pipe data from python script ...');
