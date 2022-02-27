@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/", isAuth, pagesController.getPages);
 
 // GET /pages/{id}
-router.get("/:pageId", isAuth, pagesController.getPage);
+router.post("/:pageId", isAuth, pagesController.getPage);
 
 // POST /pages
 router.post("/", isAuth, pagesController.postPage);

@@ -30,23 +30,9 @@ const login = async (req, res, next) => {
       err.statusCode = 401;
       throw err;
     }
-
-    const token = jwt.sign(
-      { userId: user._id.toString() },
-      process.env.JWT_KEY
-    );
-
-    // Set cookie in the browser to store authentication state
-    const maxAge = 1000 * 60 * 60; // 1 hour
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
-
+    sessionStorage.push({userId : user._id});
     res.status(201).json({
       message: "User successfully logged in.",
-      token: token,
       userId: user._id.toString(),
     });
   } catch (err) {
@@ -63,7 +49,7 @@ const logout = (req, res, next) => {
     throw err;
   }
 
-  res.clearCookie("token", { domain: process.env.DOMAIN });
+  sessionStorage.clear("userId");
   res.status(200).json({
     message: "User successfully logged out.",
     userId: userId,

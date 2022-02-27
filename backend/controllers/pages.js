@@ -32,9 +32,9 @@ const getPages = async (req, res, next) => {
 };
 
 const getPage = async (req, res, next) => {
-  const userId = req.userId;
+  const userId = req.body; //to be changed
   const pageId = req.params.pageId;
-
+  console.log(userId,pageId);
   try {
     const page = await Page.findById(pageId);
     if (!page) {
@@ -47,7 +47,7 @@ const getPage = async (req, res, next) => {
     // For private pages, creator and logged-in user have to be the same
     const creatorId = page.creator ? page.creator.toString() : null;
     if ((creatorId && creatorId === userId) || !creatorId) {
-      res.status(200).json({
+      res.json({
         message: "Fetched page successfully.",
         page: page,
       });
@@ -95,12 +95,13 @@ const postPage = async (req, res, next) => {
 };
 
 const putPage = async (req, res, next) => {
+  console.log("yo");
   const userId = req.userId;
   const pageId = req.params.pageId;
   const blocks = req.body.blocks;
 
   try {
-    const page = await Page.findById(pageId);
+    let page = await Page.findById(pageId);
 
     if (!page) {
       const err = new Error("Could not find page by id.");
@@ -113,11 +114,16 @@ const putPage = async (req, res, next) => {
     const creatorId = page.creator ? page.creator.toString() : null;
     if ((creatorId && creatorId === userId) || !creatorId) {
       page.blocks = blocks;
+      console.log(blocks)
       const savedPage = await page.save();
       res.status(200).json({
         message: "Updated page successfully.",
         page: savedPage,
       });
+      // console.log(page);
+      // Page.findOneAndUpdate({_id : pageId},{$set: {
+      //   blocks : blocks
+      // }});
     } else {
       const err = new Error("User is not authenticated.");
       err.statusCode = 401;

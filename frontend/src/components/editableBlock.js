@@ -5,12 +5,15 @@ import "./styles.css";
 import SelectMenu from "./selectMenu";
 
 import { getCaretCoordinates, setCaretToEnd } from "../utils/caretHelpers";
+import uid from "../utils/uid";
 
 const CMD_KEY = "/";
 
 class EditableBlock extends React.Component {
   constructor(props) {
     super(props);
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
     this.onKeyDownHandler = this.onKeyDownHandler.bind(this);
     this.onKeyUpHandler = this.onKeyUpHandler.bind(this);
@@ -23,6 +26,7 @@ class EditableBlock extends React.Component {
       html: "",
       tag: "p",
       previousKey: "",
+      isTyping: false,
       selectMenuIsOpen: false,
       selectMenuPosition: {
         x: null,
@@ -35,23 +39,34 @@ class EditableBlock extends React.Component {
     this.setState({ html: this.props.html, tag: this.props.tag });
   }
 
-  // Update the page component if one of the following is true:
-  // 1. user has changed the html content
-  // 2. user has changed the tag
   componentDidUpdate(prevProps, prevState) {
-    const htmlChanged = prevState.html !== this.state.html;
-    const tagChanged = prevState.tag !== this.state.tag;
-    if (htmlChanged || tagChanged) {
-      this.props.updatePage({
-        id: this.props.id,
+    // update the page on the server if one of the following is true
+    // 1. user stopped typing and the html content has changed & no placeholder set
+    // 2. user changed the tag & no placeholder set
+    // 3. user changed the image & no placeholder set
+    const stoppedTyping = prevState.isTyping && !this.state.isTyping;
+    const htmlChanged = this.props.html !== this.state.html;
+    const tagChanged = this.props.tag !== this.state.tag;
+    console.log(stoppedTyping,htmlChanged,tagChanged)
+    if (
+      ((stoppedTyping && htmlChanged) || tagChanged)
+    ) {
+      console.log(this.props)
+      this.props.updateBlock({
+        id: this.props._id,
         html: this.state.html,
-        tag: this.state.tag
+        tag: this.state.tag,
       });
     }
   }
-
+  handleFocus() {
+    this.setState({ ...this.state, isTyping: true });
+  }
+  handleBlur(e) {
+    this.setState({ ...this.state, isTyping: false });
+  }
   onChangeHandler(e) {
-    this.setState({ html: e.target.value });
+    this.setState({ ...this.state, html: e.target.value });
   }
 
   onKeyDownHandler(e) {
@@ -116,12 +131,18 @@ class EditableBlock extends React.Component {
   // Restore the clean html (without the command), focus the editable
   // with the caret being set to the end, close the select menu
   tagSelectionHandler(tag) {
-    this.setState({ tag: tag, html: this.state.htmlBackup }, () => {
-      setCaretToEnd(this.contentEditable.current);
-      this.closeSelectMenuHandler();
-    });
+    if (this.state.isTyping) {
+      // Update the tag and restore the html backup without the command
+      this.setState({ tag: tag, html: this.state.htmlBackup }, () => {
+        setCaretToEnd(this.contentEditable.current);
+        this.closeSelectMenuHandler();
+      });
+    } else {
+      this.setState({ ...this.state, tag: tag }, () => {
+        this.closeSelectMenuHandler();
+      });
+    }
   }
-
   render() {
     return (
       <>
@@ -137,6 +158,8 @@ class EditableBlock extends React.Component {
           innerRef={this.contentEditable}
           html={this.state.html}
           tagName={this.state.tag}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
           onChange={this.onChangeHandler}
           onKeyDown={this.onKeyDownHandler}
           onKeyUp={this.onKeyUpHandler}
