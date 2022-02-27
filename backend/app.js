@@ -65,24 +65,22 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
-app.get("/update",(req,res)=>{
+app.post("/update",(req,res)=>{
     var dataToSend;
-    console.log("h")
     // spawn new child process to call the python script
-    const python = spawn('python3', ['EventsAdder.py','Hello Buddy', '','python']);
-    // // collect data from script
-    // console.log(python)
+    const python = spawn('python', ['EventsAdder.py',req.body.p1, req.body.p2,req.body.p3]);
     python.stdout.on('data', function (data) {
+        // collect data from script
         console.log('Pipe data from python script ...');
         dataToSend = data.toString();
-        console.log(dataToSend);
     });
     // // in close event we are sure that stream from child process is closed
     python.on('close', (code) => {
         console.log(`child process close all stdio with code ${code}`);
+        res.send(dataToSend);
     })
-    res.send(dataToSend);
 })
+
 app.use(
     multer({
         storage: fileStorage,

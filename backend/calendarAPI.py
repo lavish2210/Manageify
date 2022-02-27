@@ -10,10 +10,10 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
-def accessCalendar():
+def accessCalendar(PORT):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -30,7 +30,7 @@ def accessCalendar():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8000)
+            creds = flow.run_local_server(port=PORT)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
@@ -41,13 +41,14 @@ def accessCalendar():
     except HttpError as error:
         print('An error occurred: %s' % error)
 
+
 def getUpcomingEvents(calendar, maxEvents):
     # Call the Calendar API
     now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
+    print('Getting the upcoming', maxEvents, 'events')
     events_result = calendar.events().list(calendarId='primary', timeMin=now,
-                                            maxResults=maxEvents, singleEvents=True,
-                                            orderBy='startTime').execute()
+                                           maxResults=maxEvents, singleEvents=True,
+                                           orderBy='startTime').execute()
     events = events_result.get('items', [])
 
     if not events:
@@ -59,36 +60,40 @@ def getUpcomingEvents(calendar, maxEvents):
         print(start, event['summary'])
 
 
-def addEvent(calendar, details):
-    for event in details:
-        print(event)
-        new_event = {
-            'summary': 'Google I/O 2015',
-            'location': '800 Howard St., San Francisco, CA 94103',
-            'description': 'A chance to hear more about Google\'s developer products.',
-            'start': {
-                'dateTime': '2015-05-28T09:00:00-07:00',
-                'timeZone': 'Asia/Kolkata',
-            },
-            'end': {
-                'dateTime': '2015-05-28T17:00:00-07:00',
-                'timeZone': 'Asia/Kolkata',
-            },
-            'recurrence': [
-                'RRULE:FREQ=DAILY;COUNT=2'
+def addEvent(calendar, description, startTime, endTime):
+    new_event = {
+        'summary': description,
+        'start': {
+            'dateTime': startTime,
+            'timeZone': 'Asia/Kolkata',
+        },
+        'end': {
+            'dateTime': endTime,
+            'timeZone': 'Asia/Kolkata',
+        },
+        # 'recurrence': [
+        #     'RRULE:FREQ=DAILY;COUNT=2'
+        # ],
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+                {'method': 'email', 'minutes': 24 * 60},
+                {'method': 'popup', 'minutes': 120},
+                {'method': 'popup', 'minutes': 10},
             ],
-            # 'attendees': [
-            #     # {'email': 'lpage@example.com'},
-            #     # {'email': 'sbrin@example.com'},
-            # ],
-            'reminders': {
-                'useDefault': False,
-                'overrides': [
-                    {'method': 'email', 'minutes': 24 * 60},
-                    {'method': 'popup', 'minutes': 10},
-                ],
-            },
-        }
+        },
+    }
+    new_event = calendar.events().insert(calendarId='primary', body=new_event).execute()
+    print('Event created:' + str(new_event.get('htmlLink')))
 
-        # new_event = calendar.events().insert(calendarId='primary', body=new_event).execute()
-        # print('Event created:' + str(new_event.get('htmlLink')))
+
+def addAllEvents(calendar, details):
+    events = details[1]
+    for event in events:
+        print("Adding event", event)
+        date = datetime.datetime.fromtimestamp(float(event['time']))
+        description = event['text']
+        startTime = str(date.date()) + "T" + str(date.time()) + "+05:30"
+        endTime = str(date.date()) + "T" + str(date.replace(minute=date.time().minute + 10).time()) + "+05:30"
+        addEvent(calendar, description, startTime, endTime)
+        print()

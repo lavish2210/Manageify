@@ -15,8 +15,9 @@ payload = {
     "username": f"{USERNAME}",
     "password": f"{PASSWORD}"
 }
+print(USERNAME)
 session_requests = requests.session()
-calendar = accessCalendar(8000)
+calendar = accessCalendar(3000)
 
 # https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time=1643653800
 calendar_prefix = "https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time="
@@ -83,9 +84,9 @@ if len(sys.argv) > 1:
     description = sys.argv[1]
     startTime = sys.argv[2]
     endTime = sys.argv[3]
+    startTime = startTime+":00+05:30"
+    endTime = endTime+":00+05:30"
     print(description, startTime, endTime)
-    startTime = "2021-07-05T00:00:00+05:30"
-    endTime = "2021-07-05T00:10:00+05:30"
     addEvent(calendar, description, startTime, endTime)
 # july_calendar_url = calendar_prefix + "1625077800"
 # data = get_month_events(july_calendar_url)
