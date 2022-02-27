@@ -1,5 +1,5 @@
 import React from "react";
-
+import {Link,Redirect} from "react-router-dom";
 import "./styles.css";
 import EditableBlock from "./editableBlock";
 
@@ -14,23 +14,40 @@ class EditablePage extends React.Component {
     this.updatePageOnServer = this.updatePageOnServer.bind(this);
     this.addBlockHandler = this.addBlockHandler.bind(this);
     this.deleteBlockHandler = this.deleteBlockHandler.bind(this);
-    this.state = { blocks: [initialBlock],dataisLoaded:false };
+    this.state = { blocks: [initialBlock],dataisLoaded:false,page : "all",id:"" };
     this.userId = sessionStorage.userId;
   }
   async componentDidMount(){
-    // Link to be changed
-    const data = await fetch(`http://localhost:8080/pages/621a1fd95568fd4f584cca38`,{
-      method: "POST",
-      body: JSON.stringify({
-        userId:this.userId,
-      }),
-    }).then((res) => res.json());
-    if(data.message==="Fetched page successfully.")
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const id = params.get('page_id');
+    console.log(id);
+    this.setState({
+      id:id,
+    })
+    if(id==null)
     {
-      this.setState({
-        blocks : data.page.blocks,
-      });
+      const data = await fetch(`http://localhost:8080/pages`,{
+        method: "GET",
+      }).then((res) => res.json());
+      if(data.message==="Fetched pages successfully.")
+      {
+        this.setState({
+          blocks:data.pages,
+        })
+      }
     }
+    else
+    {
+      const data = await fetch(`http://localhost:8080/pages/${id}`,{
+        method: "GET",
+      }).then((res) => res.json());
+      this.setState({
+        blocks:data.page.blocks,
+        page:"single",
+      })
+    }
+    console.log(this.state.blocks)
     this.setState({
       dataisLoaded:true,
     })
@@ -38,7 +55,7 @@ class EditablePage extends React.Component {
   updatePageOnServer = async (blocks) => {
     console.log(blocks);
     try {
-      await fetch(`http://localhost:8080/pages/621a1fd95568fd4f584cca38`, {
+      await fetch(`http://localhost:8080/pages/${this.state.id}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -96,32 +113,74 @@ class EditablePage extends React.Component {
 
   render() {
     const dataisLoaded = this.state.dataisLoaded;
+    const page = this.state.page;
+    async function createNewPage()
+    {
+      const id=uid();
+      console.log(id);
+      try {
+        const data = await fetch(`http://localhost:8080/pages/${id}`,{
+          method: "GET",
+        }).then((res) => res.json());
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+      var url="/notes?page_id="+id;
+      window.location.href=url;
+    }
     if(dataisLoaded===true)
     {
-      return (
-        <div>
-        <div className="header">
-          Dassi
-        </div>
-        <div className="Page">
-          <h1 className="pageHeading">Welcome to Notes!!</h1>
-          <h5 className="pageHeading">Type slash '/' for getting commands</h5>
-          {this.state.blocks.map((block, key) => {
-            return (
-              <EditableBlock
-                key={key}
-                id={block._id}
-                tag={block.tag}
-                html={block.html}
-                updateBlock={this.updateBlockHandler}
-                addBlock={this.addBlockHandler}
-                deleteBlock={this.deleteBlockHandler}
-              />
-            );
-          })}
-        </div>
-        </div>
-      );
+      if(page==="all")
+      {
+        return(
+          <div>
+            <div className="header">
+              Dassi
+            </div>
+            <div className="Page">
+            <h3>All-Pages</h3>
+            {this.state.blocks.map((block, key) => {
+              return (
+                <div>
+                  <a href={`?page_id=${block._id}`}><h4>{block.blocks[0].html}</h4></a>
+                </div>
+              );
+            })}
+            <button className="btn btn-primary btn-large btn-block button-properties" onClick={createNewPage}>
+              Create new Page
+            </button>
+            </div>
+          </div>
+        )
+      }
+      else
+      {
+        return (
+          <div>
+          <div className="header">
+            Dassi
+          </div>
+          <div className="Page">
+            <h1 className="pageHeading">Welcome to Notes!!</h1>
+            <h5 className="pageHeading">Type slash '/' for getting commands</h5>
+            {this.state.blocks.map((block, key) => {
+              return (
+                <EditableBlock
+                  key={key}
+                  id={block._id}
+                  tag={block.tag}
+                  html={block.html}
+                  updateBlock={this.updateBlockHandler}
+                  addBlock={this.addBlockHandler}
+                  deleteBlock={this.deleteBlockHandler}
+                />
+              );
+            })}
+          </div>
+          </div>
+        );
+      }
     }
     else
     {

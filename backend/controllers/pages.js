@@ -5,26 +5,26 @@ const Page = require("../models/page");
 const User = require("../models/user");
 
 const getPages = async (req, res, next) => {
-  const userId = req.userId;
+  // const userId = req.userId;
 
   try {
-    if (!userId) {
-      const err = new Error("User is not authenticated.");
-      err.statusCode = 401;
-      throw err;
-    }
+    // if (!userId) {
+    //   const err = new Error("User is not authenticated.");
+    //   err.statusCode = 401;
+    //   throw err;
+    // }
 
-    const user = await User.findById(userId);
+    // const user = await User.findById(userId);
 
-    if (!user) {
-      const err = new Error("Could not find user by id.");
-      err.statusCode = 404;
-      throw err;
-    }
-
+    // if (!user) {
+    //   const err = new Error("Could not find user by id.");
+    //   err.statusCode = 404;
+    //   throw err;
+    // }
+    const data = await Page.find({}).lean();
     res.status(200).json({
       message: "Fetched pages successfully.",
-      pages: user.pages.map((page) => page.toString()),
+      pages: data,
     });
   } catch (err) {
     next(err);
@@ -32,31 +32,40 @@ const getPages = async (req, res, next) => {
 };
 
 const getPage = async (req, res, next) => {
-  const userId = req.body; //to be changed
+  // const userId = req.body; //to be changed
   const pageId = req.params.pageId;
-  console.log(userId,pageId);
+  // console.log(userId,pageId);
   try {
     const page = await Page.findById(pageId);
     if (!page) {
-      const err = new Error("Could not find page by id.");
-      err.statusCode = 404;
-      throw err;
-    }
-
-    // Public pages have no creator, they can be accessed by anybody
-    // For private pages, creator and logged-in user have to be the same
-    const creatorId = page.creator ? page.creator.toString() : null;
-    if ((creatorId && creatorId === userId) || !creatorId) {
+      const blocks =[
+        {
+          tag: "p",
+          html: "",
+          imageUrl: "",
+        },
+      ];
+      console.log(blocks);
+      const insert = {_id : pageId,blocks:blocks};
+      Page.create(insert);
       res.json({
         message: "Fetched page successfully.",
         page: page,
       });
-    } else {
-      const err = new Error("User is not authenticated.");
-      err.statusCode = 401;
-      throw err;
     }
-  } catch (err) {
+    // Public pages have no creator, they can be accessed by anybody
+    // For private pages, creator and logged-in user have to be the same
+    // const creatorId = page.creator ? page.creator.toString() : null;
+    // if ((creatorId && creatorId === userId) || !creatorId) {
+    else
+    {
+      res.json({
+        message: "Fetched page successfully.",
+        page: page,
+      });
+    }
+  }
+  catch (err) {
     next(err);
   }
 };
