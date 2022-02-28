@@ -80,40 +80,27 @@ def get_month_events(url):
 
 # getUpcomingEvents(calendar, 10)
 
-if len(sys.argv) > 1:
+def addData(calendar, url):
+    print("Adding All Events for url =", url)
+    data = get_month_events(url)
+    for date in data:
+        addAllEvents(calendar, data[date])
+
+if len(sys.argv) == 4:
     description = sys.argv[1]
     startTime = sys.argv[2]
     endTime = sys.argv[3]
     startTime = startTime+":00+05:30"
     endTime = endTime+":00+05:30"
-    print(description, startTime, endTime)
     addEvent(calendar, description, startTime, endTime)
-# july_calendar_url = calendar_prefix + "1625077800"
-# data = get_month_events(july_calendar_url)
-# for date in data:
-#     addAllEvents(calendar, data[date])
+elif len(sys.argv) == 1:
+    # july_calendar_url = calendar_prefix + "1625077800"
+    # addData(calendar, july_calendar_url)
 
-# print("OCTOBER EVENTS")
-# october_calendar_url = calendar_prefix + "1633026600"
-# events = get_month_events(october_calendar_url)
-# for event in events:
-#     print(event, end=' -> ')
-#     print(events[event])
-#     print()
+    current_month_calendar_url = calendar_prefix+ str(current_month)
+    addData(calendar, current_month_calendar_url)
 
-# print("CURRENT MONTH EVENTS")
-# current_month_calendar_url = calendar_prefix+ str(current_month)
-# events = get_month_events(current_month_calendar_url)
-# for event in events:
-#     print(event, end=' -> ')
-#     print(events[event])
-#     print()
-
-# print("NEXT MONTH EVENTS")
-# next_month_calendar_url = calendar_prefix+ str(next_month)
-# events = get_month_events(next_month_calendar_url)
-# for event in events:
-#     print(event, end=' -> ')
-#     print(events[event])
-#     print()
+    next_month_calendar_url = calendar_prefix+ str(next_month)
+    addData(calendar, next_month_calendar_url)
+os.remove('token.json')
 # ---------------------------------------------

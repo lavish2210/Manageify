@@ -82,6 +82,23 @@ app.post("/update",(req,res)=>{
     })
 })
 
+app.get("/fetchMoodleEvents",(req,res)=>{
+    var dataToSend;
+    // spawn new child process to call the python script
+    const python = spawn(`${process.env.PYTHON_COMMAND}`, ['EventsAdder.py']);
+    python.stdout.on('data', function (data) {
+        // collect data from script
+        console.log('Pipe data from python script ...');
+        dataToSend = data.toString();
+    });
+    // // in close event we are sure that stream from child process is closed
+    python.on('close', (code) => {
+        console.log(`child process close all stdio with code ${code}`);
+        console.log(dataToSend);
+        res.send(dataToSend);
+    })
+})
+
 app.use(
     multer({
         storage: fileStorage,
