@@ -1,11 +1,12 @@
 import React from "react";
-import {Link,Redirect} from "react-router-dom";
+// import {Link,Redirect} from "react-router-dom";
 import "./styles.css";
 import EditableBlock from "./editableBlock";
 
 import uid from "../utils/uid";
 import { setCaretToEnd } from "../utils/caretHelpers";
 const initialBlock = { id: uid(), html: "", tag: "p" };
+var BACKEND_PORT = `${process.env.REACT_APP_BACKEND_PORT}`;
 
 class EditablePage extends React.Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class EditablePage extends React.Component {
     })
     if(id==null)
     {
-      const data = await fetch(`http://localhost:8080/pages`,{
+      const data = await fetch(`http://localhost:`+BACKEND_PORT+`/pages`,{
         method: "GET",
       }).then((res) => res.json());
       if(data.message==="Fetched pages successfully.")
@@ -39,7 +40,7 @@ class EditablePage extends React.Component {
     }
     else
     {
-      const data = await fetch(`http://localhost:8080/pages/${id}`,{
+      const data = await fetch(`http://localhost:`+BACKEND_PORT+`/pages/${id}`,{
         method: "GET",
       }).then((res) => res.json());
       this.setState({
@@ -55,7 +56,7 @@ class EditablePage extends React.Component {
   updatePageOnServer = async (blocks) => {
     console.log(blocks);
     try {
-      await fetch(`http://localhost:8080/pages/${this.state.id}`, {
+      await fetch(`http://localhost:`+BACKEND_PORT+`/pages/${this.state.id}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -119,7 +120,7 @@ class EditablePage extends React.Component {
       const id=uid();
       console.log(id);
       try {
-        const data = await fetch(`http://localhost:8080/pages/${id}`,{
+        const data = await fetch(`http://localhost:`+BACKEND_PORT+`/pages/${id}`,{
           method: "GET",
         }).then((res) => res.json());
         console.log(data);

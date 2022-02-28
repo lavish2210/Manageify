@@ -11,13 +11,13 @@ import sys
 load_dotenv()
 USERNAME = os.getenv('USER_NAME')
 PASSWORD = os.getenv('PASSWORD')
+CALENDAR_PORT = int(os.getenv('CALENDAR_PORT'))
 payload = {
     "username": f"{USERNAME}",
     "password": f"{PASSWORD}"
 }
-print(USERNAME)
 session_requests = requests.session()
-calendar = accessCalendar(3000)
+calendar = accessCalendar(CALENDAR_PORT)
 
 # https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time=1643653800
 calendar_prefix = "https://students.iitmandi.ac.in/moodle/calendar/view.php?view=month&course=1&time="

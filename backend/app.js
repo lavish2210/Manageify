@@ -55,7 +55,7 @@ const fileFilter = (req, file, cb) => {
 const app = express();
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:"+process.env.FRONTEND_PORT);
     res.setHeader("Access-Control-Allow-Credentials", true);
     res.setHeader(
         "Access-Control-Allow-Methods",
@@ -68,7 +68,7 @@ app.use(bodyParser.json());
 app.post("/update",(req,res)=>{
     var dataToSend;
     // spawn new child process to call the python script
-    const python = spawn('python', ['EventsAdder.py',req.body.p1, req.body.p2,req.body.p3]);
+    const python = spawn(`${process.env.PYTHON_COMMAND}`, ['EventsAdder.py',req.body.p1, req.body.p2,req.body.p3]);
     python.stdout.on('data', function (data) {
         // collect data from script
         console.log('Pipe data from python script ...');
@@ -77,6 +77,7 @@ app.post("/update",(req,res)=>{
     // // in close event we are sure that stream from child process is closed
     python.on('close', (code) => {
         console.log(`child process close all stdio with code ${code}`);
+        console.log(dataToSend);
         res.send(dataToSend);
     })
 })

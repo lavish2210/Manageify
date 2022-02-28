@@ -1,4 +1,5 @@
 import React from "react";
+var BACKEND_PORT = `${process.env.REACT_APP_BACKEND_PORT}`;
 
 class Events extends React.Component {
   render() {
@@ -16,7 +17,7 @@ class Events extends React.Component {
       }
       else
       {
-        await fetch(`http://localhost:8080/update`, {
+        await fetch(`http://localhost:`+BACKEND_PORT+`/update`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

@@ -5,7 +5,7 @@ import "./styles.css";
 import SelectMenu from "./selectMenu";
 
 import { getCaretCoordinates, setCaretToEnd } from "../utils/caretHelpers";
-import uid from "../utils/uid";
+// import uid from "../utils/uid";
 
 const CMD_KEY = "/";
 
