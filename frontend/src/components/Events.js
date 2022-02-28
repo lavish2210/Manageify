@@ -1,9 +1,8 @@
 import React from "react";
-const { spawn } = require('child_process');
 
 class Events extends React.Component {
   render() {
-    function calpy()
+    async function calpy()
     {
       var startTime=document.getElementById("strt").value;
       var endTime=document.getElementById("end").value;
@@ -17,19 +16,16 @@ class Events extends React.Component {
       }
       else
       {
-        var dataToSend;
-        // spawn new child process to call the python script
-        const python = spawn('python3', ['EventsAdder.py','Hello Buddy', '','python']);
-        // collect data from script
-        python.stdout.on('data', function (data) {
-            console.log('Pipe data from python script ...');
-            dataToSend = data.toString();
-            // console.log(dataToSend);
-        });
-        // in close event we are sure that stream from child process is closed
-        python.on('close', (code) => {
-            console.log(`child process close all stdio with code ${code}`);
-        })
+        await fetch(`http://localhost:8080/update`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          p1:desc,
+          p2:startTime,
+          p3:endTime
+        }),
+      });
       }
     } 
     return (
